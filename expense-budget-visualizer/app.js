@@ -9,6 +9,21 @@ const KEYS = {
 
 const DEFAULT_CATEGORIES = ["Food", "Transport", "Fun"];
 
+// ─── Currency Helpers ─────────────────────────────────────────────────────────
+function formatCurrency(amount) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function parseCurrencyAmount(str) {
+  const digits = str.replace(/[^\d]/g, "");
+  return parseInt(digits, 10);
+}
+
 // ─── AppState ─────────────────────────────────────────────────────────────────
 const AppState = {
   transactions: [],
@@ -135,15 +150,9 @@ const Validation = {
       errors.push("Name is required.");
     }
 
-    const parsed = parseFloat(amount);
-    if (
-      amount === "" ||
-      amount === null ||
-      amount === undefined ||
-      !isFinite(parsed) ||
-      parsed <= 0
-    ) {
-      errors.push("Amount must be a positive number.");
+    const parsed = parseInt(amount, 10);
+    if (!Number.isInteger(parsed) || parsed < 1) {
+      errors.push("Amount must be a whole number (minimum 1 Rp).");
     }
 
     if (!category || !category.trim()) {
@@ -223,7 +232,7 @@ const UI = {
         (t) => `
       <li data-id="${t.id}">
         <span class="txn-name">${escapeHtml(t.name)}</span>
-        <span class="txn-amount">$${t.amount.toFixed(2)}</span>
+        <span class="txn-amount">${formatCurrency(t.amount)}</span>
         <span class="txn-category">${escapeHtml(t.category)}</span>
         <span class="txn-date">${t.date}</span>
         <button class="delete-btn" data-id="${t.id}" aria-label="Delete transaction">Delete</button>
@@ -237,7 +246,7 @@ const UI = {
     const el = document.getElementById("balance");
     if (!el) return;
     const total = Logic.calculateBalance(AppState.transactions);
-    el.textContent = `$${total.toFixed(2)}`;
+    el.textContent = formatCurrency(total);
   },
 
   renderChart() {
@@ -296,7 +305,7 @@ const UI = {
         const rows = Object.entries(m.totals)
           .map(
             ([cat, amt]) =>
-              `<tr><td>${escapeHtml(cat)}</td><td>${amt.toFixed(2)}</td></tr>`,
+              `<tr><td>${escapeHtml(cat)}</td><td>${formatCurrency(amt)}</td></tr>`,
           )
           .join("");
         return `<h3>${escapeHtml(m.month)}</h3><table><thead><tr><th>Category</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>`;
@@ -406,7 +415,7 @@ const UI = {
               ? crypto.randomUUID()
               : Date.now().toString(),
           name: name.trim(),
-          amount: parseFloat(amount),
+          amount: parseInt(amount, 10),
           category: category.trim(),
           date: new Date().toISOString().slice(0, 10),
         };
