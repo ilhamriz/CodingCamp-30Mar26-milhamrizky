@@ -231,11 +231,17 @@ const UI = {
       .map(
         (t) => `
       <li data-id="${t.id}">
-        <span class="txn-name">${escapeHtml(t.name)}</span>
-        <span class="txn-amount">${formatCurrency(t.amount)}</span>
-        <span class="txn-category">${escapeHtml(t.category)}</span>
-        <span class="txn-date">${t.date}</span>
-        <button class="delete-btn" data-id="${t.id}" aria-label="Delete transaction">Delete</button>
+        <div class="transaction-column">
+          <span class="txn-main">${escapeHtml(t.name)}</span>
+          <span class="txn-submain">${escapeHtml(t.category)}</span>
+        </div>
+        <div class="transaction-column">
+          <span class="txn-main">${formatCurrency(t.amount)}</span>
+          <span class="txn-submain">${t.date}</span>
+        </div>
+        <button class="delete-btn" data-id="${t.id}" aria-label="Delete transaction">
+          <img src="./assets/delete-bin.svg" alt="Delete bin" data-id="${t.id}">
+        </button>
       </li>
     `,
       )
@@ -455,7 +461,7 @@ const UI = {
     const list = document.getElementById("transaction-list");
     if (list) {
       list.addEventListener("click", (e) => {
-        if (e.target.classList.contains("delete-btn")) {
+        if (e.target.dataset.id) {
           const id = e.target.dataset.id;
           AppState.transactions = AppState.transactions.filter(
             (t) => t.id !== id,

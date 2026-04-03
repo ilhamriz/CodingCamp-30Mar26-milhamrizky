@@ -13,7 +13,7 @@
   --color-primary-hover: #3a57e8;
   --color-primary-text: #ffffff;
   --color-danger: #e03e3e;
-  --color-danger-hover: #c42d2d;
+  --color-danger-hover: #ffb8b8;
   --color-danger-text: #ffffff;
   --color-error: #c0392b;
   --color-error-bg: #fdf0ef;
@@ -36,7 +36,7 @@
   --color-primary-hover: #8499fa;
   --color-primary-text: #ffffff;
   --color-danger: #f06060;
-  --color-danger-hover: #f27878;
+  --color-danger-hover: #ffb8b8;
   --color-danger-text: #ffffff;
   --color-error: #f06060;
   --color-error-bg: #2a1a1a;
@@ -235,8 +235,10 @@ main {
   max-width: 900px;
   margin: 0 auto;
   padding: 1.5rem 1.25rem;
-  display: flex;
-  flex-direction: column;
+  /* display: flex;
+  flex-direction: column; */
+  display: grid;
+  grid-template-columns: repeat(2, auto);
   gap: 2rem;
 }
 
@@ -245,6 +247,7 @@ main {
    ============================================================ */
 main > section,
 main > nav {
+  grid-column: 1 / -1;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 12px;
@@ -426,7 +429,7 @@ main > section h2 {
 #transaction-list li {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   background-color: var(--color-surface-alt);
@@ -437,6 +440,22 @@ main > section h2 {
 
 #transaction-list li:hover {
   background-color: var(--color-border);
+}
+
+.transaction-column {
+  width: 100%;
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  /* .transaction-main {
+      font-size: ;
+    } */
+  .txn-submain {
+    font-size: 14px;
+    color: var(--color-text-muted);
+  }
 }
 
 .transaction-info {
@@ -475,6 +494,7 @@ main > section h2 {
   min-width: 44px;
   min-height: 44px;
   padding: 0.4rem;
+  margin-left: auto;
   background-color: transparent;
   color: var(--color-danger);
   border: 1px solid transparent;
@@ -489,9 +509,9 @@ main > section h2 {
 }
 
 .delete-btn:hover {
-  background-color: var(--color-danger);
+  background-color: var(--color-danger-hover);
   color: var(--color-danger-text);
-  border-color: var(--color-danger);
+  border-color: var(--color-danger-hover);
 }
 
 /* ============================================================
@@ -653,9 +673,9 @@ main > nav {
     width: 100%;
   }
 
-  #transaction-list li {
+  /* #transaction-list li {
     flex-wrap: wrap;
-  }
+  } */
 }
 
 /* Tablets: 480px–767px */
@@ -683,6 +703,10 @@ main > nav {
 @media (min-width: 768px) {
   main {
     padding: 2rem 1.5rem;
+  }
+
+  .section-small {
+    grid-column: span 1;
   }
 
   #transaction-form {
