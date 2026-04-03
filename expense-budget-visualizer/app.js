@@ -1,21 +1,21 @@
-'use strict';
+"use strict";
 
 // ─── localStorage Keys ───────────────────────────────────────────────────────
 const KEYS = {
-  TRANSACTIONS: 'ebv_transactions',
-  CATEGORIES:   'ebv_categories',
-  THEME:        'ebv_theme',
+  TRANSACTIONS: "ebv_transactions",
+  CATEGORIES: "ebv_categories",
+  THEME: "ebv_theme",
 };
 
-const DEFAULT_CATEGORIES = ['Food', 'Transport', 'Fun'];
+const DEFAULT_CATEGORIES = ["Food", "Transport", "Fun"];
 
 // ─── AppState ─────────────────────────────────────────────────────────────────
 const AppState = {
   transactions: [],
-  categories:   [],
-  theme:        'light',
-  sortField:    null,
-  sortDir:      'asc',
+  categories: [],
+  theme: "light",
+  sortField: null,
+  sortDir: "asc",
 };
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
@@ -25,8 +25,10 @@ const Storage = {
     try {
       raw = localStorage.getItem(KEYS.TRANSACTIONS);
     } catch (e) {
-      if (e.name === 'SecurityError') {
-        UI.showStorageBanner('localStorage is unavailable. Data will not be saved this session.');
+      if (e.name === "SecurityError") {
+        UI.showStorageBanner(
+          "localStorage is unavailable. Data will not be saved this session.",
+        );
       }
       return [];
     }
@@ -36,8 +38,12 @@ const Storage = {
     try {
       return JSON.parse(raw);
     } catch (e) {
-      console.warn('Corrupt transaction data in localStorage; resetting.', e);
-      try { localStorage.removeItem(KEYS.TRANSACTIONS); } catch (_) { /* ignore */ }
+      console.warn("Corrupt transaction data in localStorage; resetting.", e);
+      try {
+        localStorage.removeItem(KEYS.TRANSACTIONS);
+      } catch (_) {
+        /* ignore */
+      }
       return [];
     }
   },
@@ -46,10 +52,12 @@ const Storage = {
     try {
       localStorage.setItem(KEYS.TRANSACTIONS, JSON.stringify(transactions));
     } catch (e) {
-      if (e.name === 'QuotaExceededError') {
-        UI.showToast('Storage quota exceeded. Transaction not saved.');
-      } else if (e.name === 'SecurityError') {
-        UI.showStorageBanner('localStorage is unavailable. Data will not be saved this session.');
+      if (e.name === "QuotaExceededError") {
+        UI.showToast("Storage quota exceeded. Transaction not saved.");
+      } else if (e.name === "SecurityError") {
+        UI.showStorageBanner(
+          "localStorage is unavailable. Data will not be saved this session.",
+        );
       }
     }
   },
@@ -59,7 +67,7 @@ const Storage = {
     try {
       raw = localStorage.getItem(KEYS.CATEGORIES);
     } catch (e) {
-      if (e.name === 'SecurityError') {
+      if (e.name === "SecurityError") {
         return [...DEFAULT_CATEGORIES];
       }
       return [...DEFAULT_CATEGORIES];
@@ -71,8 +79,12 @@ const Storage = {
     try {
       parsed = JSON.parse(raw);
     } catch (e) {
-      console.warn('Corrupt category data in localStorage; resetting.', e);
-      try { localStorage.removeItem(KEYS.CATEGORIES); } catch (_) { /* ignore */ }
+      console.warn("Corrupt category data in localStorage; resetting.", e);
+      try {
+        localStorage.removeItem(KEYS.CATEGORIES);
+      } catch (_) {
+        /* ignore */
+      }
       return [...DEFAULT_CATEGORIES];
     }
 
@@ -88,9 +100,9 @@ const Storage = {
     try {
       localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(categories));
     } catch (e) {
-      if (e.name === 'QuotaExceededError') {
-        UI.showToast('Storage quota exceeded. Categories not saved.');
-      } else if (e.name === 'SecurityError') {
+      if (e.name === "QuotaExceededError") {
+        UI.showToast("Storage quota exceeded. Categories not saved.");
+      } else if (e.name === "SecurityError") {
         // continue silently — in-memory only
       }
     }
@@ -99,9 +111,9 @@ const Storage = {
   loadTheme() {
     try {
       const val = localStorage.getItem(KEYS.THEME);
-      return (val === 'dark' || val === 'light') ? val : 'light';
+      return val === "dark" || val === "light" ? val : "light";
     } catch (e) {
-      return 'light';
+      return "light";
     }
   },
 
@@ -120,16 +132,22 @@ const Validation = {
     const errors = [];
 
     if (!name || !name.trim()) {
-      errors.push('Name is required.');
+      errors.push("Name is required.");
     }
 
     const parsed = parseFloat(amount);
-    if (amount === '' || amount === null || amount === undefined || !isFinite(parsed) || parsed <= 0) {
-      errors.push('Amount must be a positive number.');
+    if (
+      amount === "" ||
+      amount === null ||
+      amount === undefined ||
+      !isFinite(parsed) ||
+      parsed <= 0
+    ) {
+      errors.push("Amount must be a positive number.");
     }
 
     if (!category || !category.trim()) {
-      errors.push('Category is required.');
+      errors.push("Category is required.");
     }
 
     return { valid: errors.length === 0, errors };
@@ -152,9 +170,10 @@ const Logic = {
   aggregateByMonth(transactions) {
     const map = {};
     for (const t of transactions) {
-      const month = t.date ? t.date.slice(0, 7) : 'unknown';
+      const month = t.date ? t.date.slice(0, 7) : "unknown";
       if (!map[month]) map[month] = { month, totals: {} };
-      map[month].totals[t.category] = (map[month].totals[t.category] || 0) + t.amount;
+      map[month].totals[t.category] =
+        (map[month].totals[t.category] || 0) + t.amount;
     }
     return Object.values(map).sort((a, b) => a.month.localeCompare(b.month));
   },
@@ -163,12 +182,12 @@ const Logic = {
     const copy = [...transactions];
     copy.sort((a, b) => {
       let cmp = 0;
-      if (field === 'amount') {
+      if (field === "amount") {
         cmp = a.amount - b.amount;
-      } else if (field === 'category') {
+      } else if (field === "category") {
         cmp = a.category.localeCompare(b.category);
       }
-      return dir === 'desc' ? -cmp : cmp;
+      return dir === "desc" ? -cmp : cmp;
     });
     return copy;
   },
@@ -186,7 +205,7 @@ const UI = {
   },
 
   renderTransactionList() {
-    const list = document.getElementById('transaction-list');
+    const list = document.getElementById("transaction-list");
     if (!list) return;
 
     let txns = AppState.transactions;
@@ -199,7 +218,9 @@ const UI = {
       return;
     }
 
-    list.innerHTML = txns.map(t => `
+    list.innerHTML = txns
+      .map(
+        (t) => `
       <li data-id="${t.id}">
         <span class="txn-name">${escapeHtml(t.name)}</span>
         <span class="txn-amount">$${t.amount.toFixed(2)}</span>
@@ -207,25 +228,27 @@ const UI = {
         <span class="txn-date">${t.date}</span>
         <button class="delete-btn" data-id="${t.id}" aria-label="Delete transaction">Delete</button>
       </li>
-    `).join('');
+    `,
+      )
+      .join("");
   },
 
   renderBalance() {
-    const el = document.getElementById('balance');
+    const el = document.getElementById("balance");
     if (!el) return;
     const total = Logic.calculateBalance(AppState.transactions);
     el.textContent = `$${total.toFixed(2)}`;
   },
 
   renderChart() {
-    const canvas = document.getElementById('spending-chart');
-    const emptyMsg = document.getElementById('chart-empty');
+    const canvas = document.getElementById("spending-chart");
+    const emptyMsg = document.getElementById("chart-empty");
     if (!canvas) return;
 
     const hasTransactions = AppState.transactions.length > 0;
 
     // Show/hide canvas and empty-state placeholder
-    canvas.style.display = hasTransactions ? '' : 'none';
+    canvas.style.display = hasTransactions ? "" : "none";
     if (emptyMsg) emptyMsg.hidden = hasTransactions;
 
     if (!hasTransactions) return;
@@ -241,7 +264,7 @@ const UI = {
         UI.chartInstance.update();
       } else {
         UI.chartInstance = new Chart(canvas, {
-          type: 'pie',
+          type: "pie",
           data: {
             labels,
             datasets: [{ data: values }],
@@ -249,58 +272,66 @@ const UI = {
         });
       }
     } catch (e) {
-      console.error('Chart.js failed to render:', e);
-      const section = canvas.closest('section');
+      console.error("Chart.js failed to render:", e);
+      const section = canvas.closest("section");
       if (section) {
-        section.innerHTML = '<p>Chart unavailable.</p>';
+        section.innerHTML = "<p>Chart unavailable.</p>";
       }
     }
   },
 
   renderMonthlySummary() {
-    const content = document.getElementById('monthly-summary-content');
+    const content = document.getElementById("monthly-summary-content");
     if (!content) return;
 
     const months = Logic.aggregateByMonth(AppState.transactions);
     if (months.length === 0) {
-      content.innerHTML = '<p class="empty-state">No monthly data available.</p>';
+      content.innerHTML =
+        '<p class="empty-state">No monthly data available.</p>';
       return;
     }
 
-    content.innerHTML = months.map(m => {
-      const rows = Object.entries(m.totals)
-        .map(([cat, amt]) => `<tr><td>${escapeHtml(cat)}</td><td>${amt.toFixed(2)}</td></tr>`)
-        .join('');
-      return `<h3>${escapeHtml(m.month)}</h3><table><thead><tr><th>Category</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>`;
-    }).join('');
+    content.innerHTML = months
+      .map((m) => {
+        const rows = Object.entries(m.totals)
+          .map(
+            ([cat, amt]) =>
+              `<tr><td>${escapeHtml(cat)}</td><td>${amt.toFixed(2)}</td></tr>`,
+          )
+          .join("");
+        return `<h3>${escapeHtml(m.month)}</h3><table><thead><tr><th>Category</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>`;
+      })
+      .join("");
   },
 
   renderCategoryOptions() {
-    const select = document.getElementById('category');
+    const select = document.getElementById("category");
     if (!select) return;
     select.innerHTML = AppState.categories
-      .map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
-      .join('');
+      .map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
+      .join("");
   },
 
   showInlineErrors(errors) {
     // Map error messages to their corresponding field error elements
-    const nameError     = document.getElementById('item-name-error');
-    const amountError   = document.getElementById('amount-error');
-    const categoryError = document.getElementById('category-error');
+    const nameError = document.getElementById("item-name-error");
+    const amountError = document.getElementById("amount-error");
+    const categoryError = document.getElementById("category-error");
 
     for (const msg of errors) {
-      if (/name/i.test(msg) && nameError)         nameError.textContent = msg;
-      else if (/amount/i.test(msg) && amountError) amountError.textContent = msg;
-      else if (/category/i.test(msg) && categoryError) categoryError.textContent = msg;
+      if (/name/i.test(msg) && nameError) nameError.textContent = msg;
+      else if (/amount/i.test(msg) && amountError)
+        amountError.textContent = msg;
+      else if (/category/i.test(msg) && categoryError)
+        categoryError.textContent = msg;
     }
   },
 
   clearInlineErrors() {
-    const ids = ['item-name-error', 'amount-error', 'category-error'];
+    const ids = ["item-name-error", "amount-error", "category-error"];
     for (const id of ids) {
       const el = document.getElementById(id);
-      if (el) el.textContent = '';
+      if (el) el.textContent = "";
     }
   },
 
@@ -314,11 +345,11 @@ const UI = {
   },
 
   showStorageBanner(message) {
-    let banner = document.getElementById('storage-banner');
+    let banner = document.getElementById("storage-banner");
     if (!banner) {
-      banner = document.createElement('div');
-      banner.id = 'storage-banner';
-      banner.setAttribute('role', 'alert');
+      banner = document.createElement("div");
+      banner.id = "storage-banner";
+      banner.setAttribute("role", "alert");
       document.body.prepend(banner);
     }
     banner.textContent = message;
@@ -326,32 +357,41 @@ const UI = {
   },
 
   showToast(message) {
-    let toast = document.getElementById('toast');
+    let toast = document.getElementById("toast");
     if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'toast';
+      toast = document.createElement("div");
+      toast.id = "toast";
       document.body.appendChild(toast);
     }
     toast.textContent = message;
-    toast.classList.add('visible');
-    setTimeout(() => toast.classList.remove('visible'), 3000);
+    toast.classList.add("visible");
+    setTimeout(() => toast.classList.remove("visible"), 3000);
   },
 
   applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    const btn = document.getElementById('theme-toggle');
-    if (btn) btn.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+    document.documentElement.setAttribute("data-theme", theme);
+    const btn = document.getElementById("theme-toggle");
+    // if (btn) btn.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+    if (btn) {
+      const isDark = theme === "dark";
+      btn.innerHTML = `
+        <img 
+          src="./assets/${isDark ? "sun.svg" : "moon.svg"}" 
+          alt="Toggle theme"
+        />
+      `;
+    }
   },
 
   bindEvents() {
     // Transaction form
-    const form = document.getElementById('transaction-form');
+    const form = document.getElementById("transaction-form");
     if (form) {
-      form.addEventListener('submit', (e) => {
+      form.addEventListener("submit", (e) => {
         e.preventDefault();
-        const name     = form.querySelector('#item-name')?.value ?? '';
-        const amount   = form.querySelector('#amount')?.value ?? '';
-        const category = form.querySelector('#category')?.value ?? '';
+        const name = form.querySelector("#item-name")?.value ?? "";
+        const amount = form.querySelector("#amount")?.value ?? "";
+        const category = form.querySelector("#category")?.value ?? "";
 
         UI.clearInlineErrors();
         const result = Validation.validateTransaction(name, amount, category);
@@ -361,13 +401,14 @@ const UI = {
         }
 
         const transaction = {
-          id:       (typeof crypto !== 'undefined' && crypto.randomUUID)
-                      ? crypto.randomUUID()
-                      : Date.now().toString(),
-          name:     name.trim(),
-          amount:   parseFloat(amount),
+          id:
+            typeof crypto !== "undefined" && crypto.randomUUID
+              ? crypto.randomUUID()
+              : Date.now().toString(),
+          name: name.trim(),
+          amount: parseFloat(amount),
           category: category.trim(),
-          date:     new Date().toISOString().slice(0, 10),
+          date: new Date().toISOString().slice(0, 10),
         };
 
         AppState.transactions.push(transaction);
@@ -377,37 +418,39 @@ const UI = {
       });
 
       // Clear per-field error when user modifies that field
-      const nameInput     = form.querySelector('#item-name');
-      const amountInput   = form.querySelector('#amount');
-      const categoryInput = form.querySelector('#category');
+      const nameInput = form.querySelector("#item-name");
+      const amountInput = form.querySelector("#amount");
+      const categoryInput = form.querySelector("#category");
 
       if (nameInput) {
-        nameInput.addEventListener('input', () => {
-          const el = document.getElementById('item-name-error');
-          if (el) el.textContent = '';
+        nameInput.addEventListener("input", () => {
+          const el = document.getElementById("item-name-error");
+          if (el) el.textContent = "";
         });
       }
       if (amountInput) {
-        amountInput.addEventListener('input', () => {
-          const el = document.getElementById('amount-error');
-          if (el) el.textContent = '';
+        amountInput.addEventListener("input", () => {
+          const el = document.getElementById("amount-error");
+          if (el) el.textContent = "";
         });
       }
       if (categoryInput) {
-        categoryInput.addEventListener('change', () => {
-          const el = document.getElementById('category-error');
-          if (el) el.textContent = '';
+        categoryInput.addEventListener("change", () => {
+          const el = document.getElementById("category-error");
+          if (el) el.textContent = "";
         });
       }
     }
 
     // Delete buttons (delegated)
-    const list = document.getElementById('transaction-list');
+    const list = document.getElementById("transaction-list");
     if (list) {
-      list.addEventListener('click', (e) => {
-        if (e.target.classList.contains('delete-btn')) {
+      list.addEventListener("click", (e) => {
+        if (e.target.classList.contains("delete-btn")) {
           const id = e.target.dataset.id;
-          AppState.transactions = AppState.transactions.filter(t => t.id !== id);
+          AppState.transactions = AppState.transactions.filter(
+            (t) => t.id !== id,
+          );
           Storage.saveTransactions(AppState.transactions);
           UI.renderAll();
         }
@@ -415,58 +458,58 @@ const UI = {
     }
 
     // Sort controls
-    document.querySelectorAll('[data-sort]').forEach(btn => {
-      btn.addEventListener('click', () => {
+    document.querySelectorAll("[data-sort]").forEach((btn) => {
+      btn.addEventListener("click", () => {
         const field = btn.dataset.sort;
         if (AppState.sortField === field) {
-          AppState.sortDir = AppState.sortDir === 'asc' ? 'desc' : 'asc';
+          AppState.sortDir = AppState.sortDir === "asc" ? "desc" : "asc";
         } else {
           AppState.sortField = field;
-          AppState.sortDir = 'asc';
+          AppState.sortDir = "asc";
         }
         UI.renderTransactionList();
       });
     });
 
     // Theme toggle
-    const themeBtn = document.getElementById('theme-toggle');
+    const themeBtn = document.getElementById("theme-toggle");
     if (themeBtn) {
-      themeBtn.addEventListener('click', () => {
-        AppState.theme = AppState.theme === 'dark' ? 'light' : 'dark';
+      themeBtn.addEventListener("click", () => {
+        AppState.theme = AppState.theme === "dark" ? "light" : "dark";
         Storage.saveTheme(AppState.theme);
         UI.applyTheme(AppState.theme);
       });
     }
 
     // Toggle monthly summary
-    const toggleBtn = document.getElementById('toggle-monthly-summary');
-    const summarySection = document.getElementById('monthly-summary');
+    const toggleBtn = document.getElementById("toggle-monthly-summary");
+    const summarySection = document.getElementById("monthly-summary");
     if (toggleBtn && summarySection) {
-      toggleBtn.addEventListener('click', () => {
-        const isHidden = summarySection.hasAttribute('hidden');
+      toggleBtn.addEventListener("click", () => {
+        const isHidden = summarySection.hasAttribute("hidden");
         if (isHidden) {
-          summarySection.removeAttribute('hidden');
-          toggleBtn.setAttribute('aria-expanded', 'true');
-          toggleBtn.textContent = 'Hide Monthly Summary';
+          summarySection.removeAttribute("hidden");
+          toggleBtn.setAttribute("aria-expanded", "true");
+          toggleBtn.textContent = "Hide Monthly Summary";
         } else {
-          summarySection.setAttribute('hidden', '');
-          toggleBtn.setAttribute('aria-expanded', 'false');
-          toggleBtn.textContent = 'Show Monthly Summary';
+          summarySection.setAttribute("hidden", "");
+          toggleBtn.setAttribute("aria-expanded", "false");
+          toggleBtn.textContent = "Show Monthly Summary";
         }
       });
     }
 
     // Custom category
-    const addCatBtn = document.getElementById('add-category-btn');
-    const catInput  = document.getElementById('custom-category');
+    const addCatBtn = document.getElementById("add-category-btn");
+    const catInput = document.getElementById("custom-category");
     if (addCatBtn && catInput) {
-      addCatBtn.addEventListener('click', () => {
+      addCatBtn.addEventListener("click", () => {
         const val = catInput.value.trim();
         if (val && !AppState.categories.includes(val)) {
           AppState.categories.push(val);
           Storage.saveCategories(AppState.categories);
           UI.renderCategoryOptions();
-          catInput.value = '';
+          catInput.value = "";
         }
       });
     }
@@ -476,17 +519,17 @@ const UI = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function escapeHtml(str) {
   return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 function init() {
   AppState.transactions = Storage.loadTransactions();
-  AppState.categories   = Storage.loadCategories();
-  AppState.theme        = Storage.loadTheme();
+  AppState.categories = Storage.loadCategories();
+  AppState.theme = Storage.loadTheme();
 
   UI.applyTheme(AppState.theme);
   UI.renderCategoryOptions();
@@ -494,4 +537,4 @@ function init() {
   UI.bindEvents();
 }
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener("DOMContentLoaded", init);

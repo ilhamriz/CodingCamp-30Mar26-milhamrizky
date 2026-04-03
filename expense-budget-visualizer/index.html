@@ -1,120 +1,164 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="light">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Expense &amp; Budget Visualizer</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense &amp; Budget Visualizer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1 class="title">Expense & Budget Visualizer</h1>
+      <button
+        id="theme-toggle"
+        type="button"
+        aria-label="Toggle dark/light mode"
+      >
+        Toggle Theme
+      </button>
+    </header>
 
-  <header>
-    <div id="balance" aria-live="polite">
-      <span class="balance-label">Total Spent</span>
-      <span class="balance-amount">$0.00</span>
-    </div>
-    <button id="theme-toggle" type="button" aria-label="Toggle dark/light mode">
-      🌙 Toggle Theme
-    </button>
-  </header>
-
-  <main>
-
-    <section aria-labelledby="form-heading">
-      <h2 id="form-heading" class="visually-hidden">Add Transaction</h2>
-      <form id="transaction-form" novalidate>
-        <div class="field-group">
-          <label for="item-name">Item Name</label>
-          <input
-            type="text"
-            id="item-name"
-            name="item-name"
-            placeholder="e.g. Coffee"
-            autocomplete="off"
-          />
-          <span class="field-error" id="item-name-error" role="alert"></span>
-        </div>
-
-        <div class="field-group">
-          <label for="amount">Amount ($)</label>
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            placeholder="0.00"
-            min="0.01"
-            step="0.01"
-          />
-          <span class="field-error" id="amount-error" role="alert"></span>
-        </div>
-
-        <div class="field-group">
-          <label for="category">Category</label>
-          <select id="category" name="category">
-            <option value="">-- Select category --</option>
-            <option value="Food">Food</option>
-            <option value="Transport">Transport</option>
-            <option value="Fun">Fun</option>
-          </select>
-          <span class="field-error" id="category-error" role="alert"></span>
-        </div>
-
-        <div class="field-group">
-          <label for="custom-category">Custom Category</label>
-          <div class="custom-category-row">
-            <input
-              type="text"
-              id="custom-category"
-              name="custom-category"
-              placeholder="Add new category"
-              autocomplete="off"
-            />
-            <button type="button" id="add-category-btn">Add Category</button>
+    <main>
+      <section aria-labelledby="total-heading">
+        <div class="balance-wrapper">
+          <span class="balance-label">Total Spent</span>
+          <div id="balance" class="balance-amount" aria-live="polite">
+            $0.00
           </div>
         </div>
+      </section>
 
-        <button type="submit" id="add-transaction-btn">Add Transaction</button>
-      </form>
-    </section>
+      <section aria-labelledby="form-heading">
+        <h2 id="form-heading">Add Transaction</h2>
+        <form id="transaction-form" novalidate>
+          <div class="field-group">
+            <label for="item-name">Item Name</label>
+            <input
+              type="text"
+              id="item-name"
+              name="item-name"
+              placeholder="e.g. Coffee"
+              autocomplete="off"
+            />
+            <span class="field-error" id="item-name-error" role="alert"></span>
+          </div>
 
-    <section aria-labelledby="list-heading">
-      <div class="list-header">
-        <h2 id="list-heading">Transactions</h2>
-        <div class="sort-controls" role="group" aria-label="Sort transactions">
-          <button type="button" data-sort="amount" aria-label="Sort by amount">Amount ↕</button>
-          <button type="button" data-sort="category" aria-label="Sort by category">Category A–Z</button>
+          <div class="field-group">
+            <label for="amount">Amount ($)</label>
+            <input
+              type="number"
+              id="amount"
+              name="amount"
+              placeholder="0.00"
+              min="0.01"
+              step="0.01"
+            />
+            <span class="field-error" id="amount-error" role="alert"></span>
+          </div>
+
+          <div class="field-group">
+            <label for="category">Category</label>
+            <select id="category" name="category">
+              <option value="">-- Select category --</option>
+              <option value="Food">Food</option>
+              <option value="Transport">Transport</option>
+              <option value="Fun">Fun</option>
+            </select>
+            <span class="field-error" id="category-error" role="alert"></span>
+          </div>
+
+          <button type="submit" id="add-transaction-btn">
+            Add Transaction
+          </button>
+
+          <div class="field-group custom-category">
+            <label for="custom-category">Custom Category</label>
+            <div class="custom-category-row">
+              <input
+                type="text"
+                id="custom-category"
+                name="custom-category"
+                placeholder="Add new category"
+                autocomplete="off"
+              />
+              <button
+                type="button"
+                id="add-category-btn"
+                class="button btn-secondary"
+              >
+                Add Category
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section aria-labelledby="chart-heading">
+        <h2 id="chart-heading">Spending by Category</h2>
+        <div id="chart-container">
+          <canvas
+            id="spending-chart"
+            role="img"
+            aria-label="Pie chart of spending by category"
+            style="display: none"
+          ></canvas>
+          <p id="chart-empty" class="empty-state">
+            Add transactions to see the chart.
+          </p>
         </div>
-      </div>
-      <ul id="transaction-list" aria-label="Transaction history">
-        <li class="empty-state" id="empty-state">No transactions recorded yet.</li>
-      </ul>
-    </section>
+      </section>
 
-    <section aria-labelledby="chart-heading">
-      <h2 id="chart-heading">Spending by Category</h2>
-      <div id="chart-container">
-        <canvas id="spending-chart" role="img" aria-label="Pie chart of spending by category" style="display:none"></canvas>
-        <p id="chart-empty" class="empty-state">Add transactions to see the chart.</p>
-      </div>
-    </section>
+      <section aria-labelledby="list-heading">
+        <div class="list-header">
+          <h2 id="list-heading">Transactions</h2>
+          <div
+            class="sort-controls"
+            role="group"
+            aria-label="Sort transactions"
+          >
+            <button
+              type="button"
+              data-sort="amount"
+              aria-label="Sort by amount"
+            >
+              Amount ↕
+            </button>
+            <button
+              type="button"
+              data-sort="category"
+              aria-label="Sort by category"
+            >
+              Category A-Z
+            </button>
+          </div>
+        </div>
+        <ul id="transaction-list" aria-label="Transaction history">
+          <li class="empty-state" id="empty-state">
+            No transactions recorded yet.
+          </li>
+        </ul>
+      </section>
 
-    <nav aria-label="View navigation">
-      <button type="button" id="toggle-monthly-summary" aria-expanded="false" aria-controls="monthly-summary">
-        Show Monthly Summary
-      </button>
-    </nav>
+      <nav aria-label="View navigation">
+        <button
+          type="button"
+          id="toggle-monthly-summary"
+          aria-expanded="false"
+          aria-controls="monthly-summary"
+        >
+          Show Monthly Summary
+        </button>
+      </nav>
 
-    <section id="monthly-summary" aria-labelledby="monthly-heading" hidden>
-      <h2 id="monthly-heading">Monthly Summary</h2>
-      <div id="monthly-summary-content">
-        <p class="empty-state">No monthly data available.</p>
-      </div>
-    </section>
+      <section id="monthly-summary" aria-labelledby="monthly-heading" hidden>
+        <h2 id="monthly-heading">Monthly Summary</h2>
+        <div id="monthly-summary-content">
+          <p class="empty-state">No monthly data available.</p>
+        </div>
+      </section>
+    </main>
 
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="app.js"></script>
-
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>
