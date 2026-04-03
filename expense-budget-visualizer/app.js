@@ -237,7 +237,7 @@ const UI = {
         </div>
         <div class="transaction-column">
           <span class="txn-main">${formatCurrency(t.amount)}</span>
-          <span class="txn-submain">${t.date}</span>
+          <span class="txn-submain">${dayjs(t.date).format("DD-MMM-YY")}</span>
         </div>
         <button class="delete-btn" data-id="${t.id}" aria-label="Delete transaction">
           <img src="./assets/delete-bin.svg" alt="Delete bin" data-id="${t.id}">
@@ -314,7 +314,7 @@ const UI = {
               `<tr><td>${escapeHtml(cat)}</td><td>${formatCurrency(amt)}</td></tr>`,
           )
           .join("");
-        return `<h3>${escapeHtml(m.month)}</h3><table><thead><tr><th>Category</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>`;
+        return `<h3>${dayjs(m.month).format("MMMM YYYY")}</h3><table><thead><tr><th>Category</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>`;
       })
       .join("");
   },
